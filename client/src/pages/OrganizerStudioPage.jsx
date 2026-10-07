@@ -31,6 +31,10 @@ export function OrganizerStudioPage({ tournamentId, userId, onBackToHub }) {
   const [selectedGlobalTeamId, setSelectedGlobalTeamId] = useState('');
   const [groupName, setGroupName] = useState('General');
   const [isRegisteringTeam, setIsRegisteringTeam] = useState(false);
+  const [newTeamName, setNewTeamName] = useState('');
+  const [newTeamShortName, setNewTeamShortName] = useState('');
+  const [newTeamCity, setNewTeamCity] = useState('');
+  const [isCreatingTeam, setIsCreatingTeam] = useState(false);
 
   // Fixtures & Match Ops state
   const [matches, setMatches] = useState([]);
@@ -135,6 +139,34 @@ export function OrganizerStudioPage({ tournamentId, userId, onBackToHub }) {
       alert(err.message || 'Failed to register team');
     } finally {
       setIsRegisteringTeam(false);
+    }
+  };
+
+  const handleCreateAndEnrollTeam = async (e) => {
+    e.preventDefault();
+    if (!newTeamName.trim() || !newTeamShortName.trim()) return;
+    setIsCreatingTeam(true);
+    try {
+      const created = await api.createGlobalTeam({
+        name: newTeamName.trim(),
+        short_name: newTeamShortName.trim(),
+        city: newTeamCity.trim() || null,
+      }, userId);
+      await api.registerTeamToTournament(tournamentId, { teamId: created.data.id, groupName }, userId);
+      setNewTeamName('');
+      setNewTeamShortName('');
+      setNewTeamCity('');
+      const [teamsRes, globalTeamsRes] = await Promise.all([
+        api.getTournamentTeams(tournamentId),
+        api.getGlobalTeams(),
+      ]);
+      setTeams(teamsRes.data || []);
+      setGlobalTeams(globalTeamsRes.data || []);
+      setSelectedGlobalTeamId(created.data.id);
+    } catch (err) {
+      alert(err.message || 'Failed to create team');
+    } finally {
+      setIsCreatingTeam(false);
     }
   };
 
@@ -400,6 +432,27 @@ export function OrganizerStudioPage({ tournamentId, userId, onBackToHub }) {
       {/* TAB 3: TEAMS & SQUADS */}
       {activeTab === 'TEAMS' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <form
+            onSubmit={handleCreateAndEnrollTeam}
+            style={{ background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', padding: '16px 20px', display: 'flex', gap: '12px', alignItems: 'flex-end', flexWrap: 'wrap' }}
+          >
+            <div style={{ flex: '1 1 220px' }}>
+              <label style={{ display: 'block', fontSize: '0.75rem', color: '#94a3b8', marginBottom: '4px' }}>New Team Name</label>
+              <input required maxLength={120} value={newTeamName} onChange={(e) => setNewTeamName(e.target.value)} placeholder="e.g. Riverside Cricket Club" style={{ width: '100%', padding: '8px 12px', background: '#1e293b', border: '1px solid #334155', borderRadius: '6px', color: '#f8fafc' }} />
+            </div>
+            <div style={{ width: '150px' }}>
+              <label style={{ display: 'block', fontSize: '0.75rem', color: '#94a3b8', marginBottom: '4px' }}>Short Code</label>
+              <input required maxLength={10} value={newTeamShortName} onChange={(e) => setNewTeamShortName(e.target.value)} placeholder="RCC" style={{ width: '100%', padding: '8px 12px', background: '#1e293b', border: '1px solid #334155', borderRadius: '6px', color: '#f8fafc' }} />
+            </div>
+            <div style={{ width: '180px' }}>
+              <label style={{ display: 'block', fontSize: '0.75rem', color: '#94a3b8', marginBottom: '4px' }}>City (optional)</label>
+              <input maxLength={100} value={newTeamCity} onChange={(e) => setNewTeamCity(e.target.value)} placeholder="City" style={{ width: '100%', padding: '8px 12px', background: '#1e293b', border: '1px solid #334155', borderRadius: '6px', color: '#f8fafc' }} />
+            </div>
+            <button type="submit" disabled={isCreatingTeam || !userId} style={{ padding: '9px 14px', background: '#10b981', border: 0, borderRadius: '6px', color: 'white', fontWeight: 700, cursor: 'pointer' }}>
+              {isCreatingTeam ? 'Creating...' : '+ Create & Add Team'}
+            </button>
+          </form>
+
           {/* Register Team Bar */}
           <form
             onSubmit={handleRegisterTeam}
@@ -423,6 +476,7 @@ export function OrganizerStudioPage({ tournamentId, userId, onBackToHub }) {
                 onChange={(e) => setSelectedGlobalTeamId(e.target.value)}
                 style={{ width: '100%', padding: '8px 12px', background: '#1e293b', border: '1px solid #334155', borderRadius: '6px', color: '#f8fafc' }}
               >
+                {globalTeams.length === 0 && <option value="">No saved teams yet; create one above.</option>}
                 {globalTeams.map((gt) => (
                   <option key={gt.id} value={gt.id}>
                     {gt.name} ({gt.short_name}) - {gt.city || 'Club'}
