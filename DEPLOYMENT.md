@@ -2,6 +2,19 @@
 
 This runbook describes the architecture, deployment targets, configuration contracts, and disaster recovery procedures for **LocalCricket** in production.
 
+## Free-tier launch (Render + Supabase)
+
+The repository includes a Render Blueprint in `render.yaml`. It deploys the Docker app as one service, serving the React app and API on the same origin. PostgreSQL is hosted separately on Supabase.
+
+1. Create a Supabase project and set a strong database password.
+2. In Supabase, open **Connect**, select **Session pooler**, and copy its PostgreSQL connection string. Render's free service uses IPv4, so use the session pooler rather than the Supabase direct connection. Session mode preserves the database session features used by this app's migrations.
+3. In Render, create a Blueprint from this GitHub repository and select `render.yaml`. When prompted, set `DATABASE_URL` to the Supabase session-pooler connection string. Keep the username, host, and port supplied by Supabase; URL-encode special characters in the password.
+4. Wait for the first deploy and check `https://<your-render-service>.onrender.com/health` and `/ready`. The service runs database migrations automatically on startup.
+5. In Render's Environment settings, update `CORS_ORIGIN` to the exact `https://<your-render-service>.onrender.com` origin if Render assigned a different hostname. Redeploy after changing it.
+6. Provision the first Super Admin from Render's service shell with `npm run provision-admin`, then use that account to create tournaments and assign scorers.
+
+This setup can stay within the providers' free tiers for light use, with service availability limits: Render free web services sleep after 15 minutes without traffic and wake on the next request; Supabase may pause a free project after seven days of low activity. Supabase free projects also do not include downloadable database backups, so export tournament data regularly before relying on it for official records. See [Render free services](https://render.com/docs/free), [Supabase connection methods](https://supabase.com/docs/guides/database/connecting-to-postgres), and [Supabase production availability](https://supabase.com/docs/guides/deployment/going-into-prod).
+
 ---
 
 ## 1. Environment Configuration
