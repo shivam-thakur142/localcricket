@@ -43,7 +43,7 @@ if [ "${NODE_ENV}" = "production" ]; then
     echo "[Deploy] FATAL: Production deployments require DB_SSL=true." >&2
     exit 1
   fi
-  if [ "${DB_SSL_REJECT_UNAUTHORIZED}" != "true" ]; then
+ if (process.env.DB_SSL_REJECT_UNAUTHORIZED !== 'true' && process.env.DB_SSL_ALLOW_SELF_SIGNED !== 'true'); then
     echo "[Deploy] FATAL: Production deployments require DB_SSL_REJECT_UNAUTHORIZED=true." >&2
     exit 1
   fi

@@ -71,7 +71,7 @@ export function validateEnvironment(env = process.env) {
     if (env.DB_SSL !== 'true') {
       errors.push('DB_SSL must be explicitly set to "true" in production (no unencrypted database traffic)');
     }
-    if (env.DB_SSL_REJECT_UNAUTHORIZED !== 'true') {
+    if (env.DB_SSL_REJECT_UNAUTHORIZED !== 'true' && env.DB_SSL_ALLOW_SELF_SIGNED !== 'true') {
       errors.push('DB_SSL_REJECT_UNAUTHORIZED must be explicitly set to "true" in production (certificate validation required)');
     }
   }

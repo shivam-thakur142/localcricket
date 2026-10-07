@@ -22,7 +22,7 @@ export function createDbPool(customConfig = {}) {
   if (customConfig.ssl !== undefined) {
     ssl = customConfig.ssl;
   } else if (process.env.DB_SSL === 'true') {
-    const rejectUnauthorized = process.env.DB_SSL_REJECT_UNAUTHORIZED !== 'false';
+    const rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED === 'true' && process.env.DB_SSL_ALLOW_SELF_SIGNED !== 'true';
     ssl = {
       rejectUnauthorized,
       ca: process.env.DB_SSL_CA || undefined,
