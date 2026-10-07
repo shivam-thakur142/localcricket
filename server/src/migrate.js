@@ -86,12 +86,13 @@ async function releaseAdvisoryLock(client) {
  *
  * @param {import('pg').Pool | Object} poolOrDb Database pool or instance
  * @param {Object} [options={}] Migration options
- * @returns {Promise<{ executedCount: number, verifiedCount: number }>}
+ * @returns {Promise<{ executedCount: number, verifiedCount: number, skippedCount: number }>}
  */
 export async function runMigrations(poolOrDb, options = {}) {
   const migrationsDir = options.migrationsDir || MIGRATIONS_DIR;
   const timeoutMs = options.lockTimeoutMs || parseInt(process.env.MIGRATION_LOCK_TIMEOUT_MS || '15000', 10);
   const logger = options.logger || console;
+  const environment = options.environment || process.env.NODE_ENV || 'development';
 
   // 1. Resolve client for advisory locking and ledger setup
   const client = poolOrDb.connect ? await poolOrDb.connect() : poolOrDb;
@@ -139,6 +140,7 @@ export async function runMigrations(poolOrDb, options = {}) {
 
     let executedCount = 0;
     let verifiedCount = 0;
+    let skippedCount = 0;
 
     // 6. Process each migration in deterministic order
     for (const file of files) {
@@ -154,11 +156,29 @@ export async function runMigrations(poolOrDb, options = {}) {
         }
         verifiedCount++;
       } else {
+        // Demo fixtures belong only in development/test databases.
+        if (environment === 'production' && file === '004_seed_test_data.sql') {
+          logger.log(`[Migrations] Skipping development fixtures in ${file}.`);
+          await withTransaction(poolOrDb, async (txClient) => {
+            await txClient.query(
+              `INSERT INTO schema_migrations (version, executed_at, execution_time_ms, checksum)
+               VALUES ($1, NOW(), 0, $2);`,
+              [file, fileChecksum]
+            );
+          });
+          skippedCount++;
+          continue;
+        }
+
         // Execution step: Apply unexecuted migration within a transaction
         logger.log(`[Migrations] Applying ${file}...`);
         const t0 = Date.now();
 
         await withTransaction(poolOrDb, async (txClient) => {
+          await txClient.query(
+            "SELECT set_config('localcricket.environment', $1, true);",
+            [environment]
+          );
           if (typeof txClient.exec === 'function') {
             await txClient.exec(sqlContent);
           } else {
@@ -177,7 +197,7 @@ export async function runMigrations(poolOrDb, options = {}) {
       }
     }
 
-    return { executedCount, verifiedCount };
+    return { executedCount, verifiedCount, skippedCount };
   } finally {
     if (lockAcquired) {
       await releaseAdvisoryLock(client);

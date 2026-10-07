@@ -2,13 +2,22 @@
 -- MIGRATION 001: Initial Schema Definition for LocalCricket
 -- ====================================================================
 
--- 1. Create auth schema stub for local testing if not running in Supabase
-CREATE SCHEMA IF NOT EXISTS auth;
-CREATE TABLE IF NOT EXISTS auth.users (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  email VARCHAR(255) UNIQUE NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
+-- 1. Create an auth.users stub for local testing only. Supabase owns its
+-- protected auth schema, so avoid CREATE statements when its table exists.
+DO $$
+BEGIN
+  IF to_regclass('auth.users') IS NULL THEN
+    IF to_regnamespace('auth') IS NULL THEN
+      EXECUTE 'CREATE SCHEMA auth';
+    END IF;
+
+    EXECUTE 'CREATE TABLE auth.users (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      email VARCHAR(255) UNIQUE NOT NULL,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    )';
+  END IF;
+END $$;
 
 -- 2. Enumerations & Custom Domain Types
 DO $$ BEGIN

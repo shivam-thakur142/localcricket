@@ -2,13 +2,22 @@
 -- MIGRATION 003: Row Level Security (RLS) Policies for LocalCricket
 -- ====================================================================
 
--- 0. Ensure auth schema and auth.uid stub exist for environments outside Supabase
-CREATE SCHEMA IF NOT EXISTS auth;
-CREATE OR REPLACE FUNCTION auth.uid() RETURNS UUID AS $$
+-- 0. Provide auth schema/function stubs only outside Supabase. Supabase owns
+-- both objects; replacing auth.uid() there would break its JWT identity logic.
+DO $$
 BEGIN
-  RETURN NULL;
-END;
-$$ LANGUAGE plpgsql;
+  IF to_regnamespace('auth') IS NULL THEN
+    EXECUTE 'CREATE SCHEMA auth';
+  END IF;
+
+  IF to_regprocedure('auth.uid()') IS NULL THEN
+    EXECUTE $sql$
+      CREATE FUNCTION auth.uid() RETURNS UUID
+      LANGUAGE sql STABLE
+      AS 'SELECT NULL::uuid'
+    $sql$;
+  END IF;
+END $$;
 
 -- 1. Enable RLS on all tables
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;

@@ -88,6 +88,7 @@ ALTER TABLE teams ADD COLUMN IF NOT EXISTS verified_at TIMESTAMPTZ;
 -- (Production environments do not seed known default passwords)
 DO $$
 BEGIN
+  IF current_setting('localcricket.environment', true) IS DISTINCT FROM 'production' THEN
   -- Insert into auth.users stub
   INSERT INTO auth.users (id, email) VALUES
     ('00000000-0000-0000-0000-000000000001', 'admin@localcricket.test')
@@ -102,4 +103,5 @@ BEGIN
   INSERT INTO user_credentials (user_id, password_hash) VALUES
     ('00000000-0000-0000-0000-000000000001', '$2b$12$/qCsressW.39cBScHHb7OOdSjEAQx0DSEFbtqczJC8OcKcrW6MjpC')
   ON CONFLICT (user_id) DO NOTHING;
+  END IF;
 END $$;

@@ -68,17 +68,22 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_invitations_unique_active
 -- Hash: $2b$12$/qCsressW.39cBScHHb7OOdSjEAQx0DSEFbtqczJC8OcKcrW6MjpC
 -- Verified via bcrypt.compareSync('LocalCricket@2026!', hash) === true
 
-INSERT INTO auth.users (id, email) VALUES
-  ('99999999-9999-9999-9999-999999999999', 'viewer@localcricket.test')
-ON CONFLICT (id) DO NOTHING;
+DO $$
+BEGIN
+  IF current_setting('localcricket.environment', true) IS DISTINCT FROM 'production' THEN
+    INSERT INTO auth.users (id, email) VALUES
+      ('99999999-9999-9999-9999-999999999999', 'viewer@localcricket.test')
+    ON CONFLICT (id) DO NOTHING;
 
-INSERT INTO users (id, auth_user_id, full_name, email, phone, global_role) VALUES
-  ('99999999-9999-9999-9999-999999999999', '99999999-9999-9999-9999-999999999999', 'Ravi Shastri (User)', 'viewer@localcricket.test', '+919876543212', 'USER')
-ON CONFLICT (id) DO NOTHING;
+    INSERT INTO users (id, auth_user_id, full_name, email, phone, global_role) VALUES
+      ('99999999-9999-9999-9999-999999999999', '99999999-9999-9999-9999-999999999999', 'Ravi Shastri (User)', 'viewer@localcricket.test', '+919876543212', 'USER')
+    ON CONFLICT (id) DO NOTHING;
 
-INSERT INTO user_credentials (user_id, password_hash)
-VALUES
-  ('11111111-1111-1111-1111-111111111111', '$2b$12$/qCsressW.39cBScHHb7OOdSjEAQx0DSEFbtqczJC8OcKcrW6MjpC'),
-  ('22222222-2222-2222-2222-222222222222', '$2b$12$/qCsressW.39cBScHHb7OOdSjEAQx0DSEFbtqczJC8OcKcrW6MjpC'),
-  ('99999999-9999-9999-9999-999999999999', '$2b$12$/qCsressW.39cBScHHb7OOdSjEAQx0DSEFbtqczJC8OcKcrW6MjpC')
-ON CONFLICT (user_id) DO NOTHING;
+    INSERT INTO user_credentials (user_id, password_hash)
+    VALUES
+      ('11111111-1111-1111-1111-111111111111', '$2b$12$/qCsressW.39cBScHHb7OOdSjEAQx0DSEFbtqczJC8OcKcrW6MjpC'),
+      ('22222222-2222-2222-2222-222222222222', '$2b$12$/qCsressW.39cBScHHb7OOdSjEAQx0DSEFbtqczJC8OcKcrW6MjpC'),
+      ('99999999-9999-9999-9999-999999999999', '$2b$12$/qCsressW.39cBScHHb7OOdSjEAQx0DSEFbtqczJC8OcKcrW6MjpC')
+    ON CONFLICT (user_id) DO NOTHING;
+  END IF;
+END $$;
