@@ -338,11 +338,18 @@ function AppContent() {
 
         {view === 'STUDIO' && (
           tournamentId ? (
-            <OrganizerStudioPage
-              tournamentId={tournamentId}
-              userId={userId}
-              onBackToHub={() => setView('TOURNAMENT')}
-            />
+            isAuthenticated ? (
+              <OrganizerStudioPage
+                tournamentId={tournamentId}
+                userId={userId}
+                onBackToHub={() => setView('TOURNAMENT')}
+              />
+            ) : (
+              <AuthRequiredPrompt
+                onSignIn={() => { setAuthModalMode('LOGIN'); setIsAuthModalOpen(true); }}
+                onRegister={() => { setAuthModalMode('REGISTER'); setIsAuthModalOpen(true); }}
+              />
+            )
           ) : <SelectionPrompt message="Choose a tournament from Home before opening its organizer studio." onHome={() => setView('HOME')} />
         )}
 
@@ -413,6 +420,19 @@ function SelectionPrompt({ message, onHome }) {
       <h2 style={{ marginTop: 0 }}>Select a tournament or match</h2>
       <p style={{ color: '#94a3b8' }}>{message}</p>
       <button onClick={onHome} style={{ padding: '9px 16px', border: 0, borderRadius: '6px', background: '#0284c7', color: 'white', fontWeight: 700, cursor: 'pointer' }}>Go to Home</button>
+    </div>
+  );
+}
+
+function AuthRequiredPrompt({ onSignIn, onRegister }) {
+  return (
+    <div style={{ maxWidth: '720px', margin: '48px auto', padding: '24px', color: '#f8fafc', textAlign: 'center', background: '#0f172a', border: '1px solid #334155', borderRadius: '12px' }}>
+      <h2 style={{ marginTop: 0 }}>Sign in to manage this tournament</h2>
+      <p style={{ color: '#94a3b8' }}>You need an account to create teams, enroll them, and schedule fixtures.</p>
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
+        <button onClick={onSignIn} style={{ padding: '9px 16px', border: 0, borderRadius: '6px', background: '#0284c7', color: 'white', fontWeight: 700, cursor: 'pointer' }}>Sign In</button>
+        <button onClick={onRegister} style={{ padding: '9px 16px', border: '1px solid #475569', borderRadius: '6px', background: '#1e293b', color: 'white', fontWeight: 700, cursor: 'pointer' }}>Register</button>
+      </div>
     </div>
   );
 }

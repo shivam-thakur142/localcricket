@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal } from '../common/Modal.jsx';
 import { Button } from '../common/Button.jsx';
 import { useAuth } from '../../contexts/AuthContext.jsx';
@@ -13,6 +13,13 @@ export function AuthModal({ isOpen, onClose, initialMode = 'LOGIN' }) {
   const [phone, setPhone] = useState('');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setMode(initialMode);
+      setError(null);
+    }
+  }, [isOpen, initialMode]);
 
   const resetForm = () => {
     setEmail('');
