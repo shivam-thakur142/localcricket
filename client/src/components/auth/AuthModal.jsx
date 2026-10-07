@@ -29,12 +29,6 @@ export function AuthModal({ isOpen, onClose, initialMode = 'LOGIN' }) {
     onClose();
   };
 
-  const handleQuickFill = (demoEmail) => {
-    setEmail(demoEmail);
-    setPassword('LocalCricket@2026!');
-    setError(null);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
@@ -125,7 +119,7 @@ export function AuthModal({ isOpen, onClose, initialMode = 'LOGIN' }) {
         )}
 
         {/* Demo Persona Quick-Fill (Login mode only) */}
-        {mode === 'LOGIN' && (
+        {false && mode === 'LOGIN' && (
           <div
             style={{
               background: 'rgba(56, 189, 248, 0.08)',

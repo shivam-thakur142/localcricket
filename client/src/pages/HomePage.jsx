@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../services/api.js';
 
-export function HomePage({ userId, onSelectTournament, onSelectMatchForSpectator, onOpenStudio }) {
+export function HomePage({ userId, isAuthenticated, onRequireAuth, onSelectTournament, onSelectMatchForSpectator, onOpenStudio }) {
   const [liveMatches, setLiveMatches] = useState([]);
   const [tournaments, setTournaments] = useState([]);
   const [search, setSearch] = useState('');
@@ -175,7 +175,7 @@ export function HomePage({ userId, onSelectTournament, onSelectMatchForSpectator
           </div>
 
           <button
-            onClick={() => setShowCreateModal(true)}
+            onClick={() => isAuthenticated ? setShowCreateModal(true) : onRequireAuth?.()}
             style={{
               padding: '10px 18px',
               background: '#10b981',

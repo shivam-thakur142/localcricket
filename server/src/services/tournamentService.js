@@ -98,7 +98,7 @@ export class TournamentService {
        JOIN users u ON t.created_by_user_id = u.id
        LEFT JOIN tournament_teams tt ON t.id = tt.tournament_id
        LEFT JOIN matches m ON t.id = m.tournament_id
-       WHERE t.id = $1 OR t.slug = $1
+       WHERE t.id::text = $1 OR t.slug = $1
        GROUP BY t.id, u.id;`,
       [id]
     );

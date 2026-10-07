@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { HomePage } from './pages/HomePage.jsx';
 import { TournamentHubPage } from './pages/TournamentHubPage.jsx';
 import { OrganizerStudioPage } from './pages/OrganizerStudioPage.jsx';
@@ -9,23 +9,17 @@ import { PlayerProfilePage } from './pages/PlayerProfilePage.jsx';
 import { TeamProfilePage } from './pages/TeamProfilePage.jsx';
 import { InvitationAcceptPage } from './pages/InvitationAcceptPage.jsx';
 import { SuperAdminPage } from './pages/SuperAdminPage.jsx';
-import { PersonaSwitcher, DEMO_PERSONAS } from './components/layout/PersonaSwitcher.jsx';
 import { AuthProvider, useAuth } from './contexts/AuthContext.jsx';
 import { ThemeProvider } from './contexts/ThemeContext.jsx';
-import { offlineQueueService } from './services/offlineQueueService.js';
 import { AuthModal } from './components/auth/AuthModal.jsx';
 import { ChangePasswordModal } from './components/auth/ChangePasswordModal.jsx';
 
-const DEFAULT_TOURNAMENT_ID = '33333333-3333-3333-3333-333333333333';
-const DEFAULT_MATCH_ID = '88888888-8888-8888-8888-888888888888';
-const DEFAULT_ORGANIZER_ID = '11111111-1111-1111-1111-111111111111';
-
 function AppContent() {
-  const { user, isAuthenticated, login, logout } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
 
-  const [tournamentId, setTournamentId] = useState(DEFAULT_TOURNAMENT_ID);
-  const [matchId, setMatchId] = useState(DEFAULT_MATCH_ID);
-  const [userId, setUserId] = useState(DEFAULT_ORGANIZER_ID);
+  const [tournamentId, setTournamentId] = useState(null);
+  const [matchId, setMatchId] = useState(null);
+  const userId = user?.id || null;
 
   // Check URL pathname for /invitations/:token
   const inviteTokenMatch = typeof window !== 'undefined' ? window.location.pathname.match(/\/invitations\/([a-zA-Z0-9_-]+)/) : null;
@@ -40,13 +34,6 @@ function AppContent() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState('LOGIN');
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
-
-  // Sync userId when user logs in or out
-  useEffect(() => {
-    if (user?.id) {
-      setUserId(user.id);
-    }
-  }, [user]);
 
   const handleLaunchScorer = (selectedMatchId) => {
     setMatchId(selectedMatchId);
@@ -86,22 +73,6 @@ function AppContent() {
 
   const handleBackFromProfile = () => {
     setView(previousView || 'HOME');
-  };
-
-  const handleSelectPersona = async (persona) => {
-    setUserId(persona.id);
-    if (persona.email) {
-      try {
-        await login({ email: persona.email, password: 'LocalCricket@2026!' });
-      } catch (err) {
-        console.warn('Persona login fallback:', err.message);
-      }
-    } else {
-      if (userId) {
-        await offlineQueueService.clearUserSession(userId);
-      }
-      await logout();
-    }
   };
 
   return (
@@ -240,7 +211,7 @@ function AppContent() {
           )}
         </div>
 
-        {/* Right Section: Auth State + Persona Switcher */}
+        {/* Right Section: Signed-in account */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
           {isAuthenticated ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -324,12 +295,6 @@ function AppContent() {
               </button>
             </div>
           )}
-
-          {/* Demo Persona Switcher */}
-          <PersonaSwitcher
-            currentUserId={userId}
-            onSelectPersona={handleSelectPersona}
-          />
         </div>
       </header>
 
@@ -348,6 +313,11 @@ function AppContent() {
         {view === 'HOME' && (
           <HomePage
             userId={userId}
+            isAuthenticated={isAuthenticated}
+            onRequireAuth={() => {
+              setAuthModalMode('LOGIN');
+              setIsAuthModalOpen(true);
+            }}
             onSelectTournament={handleSelectTournament}
             onSelectMatchForSpectator={handleLaunchSpectator}
             onOpenStudio={handleOpenStudio}
@@ -367,31 +337,37 @@ function AppContent() {
         )}
 
         {view === 'STUDIO' && (
-          <OrganizerStudioPage
-            tournamentId={tournamentId}
-            userId={userId}
-            onBackToHub={() => setView('TOURNAMENT')}
-          />
+          tournamentId ? (
+            <OrganizerStudioPage
+              tournamentId={tournamentId}
+              userId={userId}
+              onBackToHub={() => setView('TOURNAMENT')}
+            />
+          ) : <SelectionPrompt message="Choose a tournament from Home before opening its organizer studio." onHome={() => setView('HOME')} />
         )}
 
         {view === 'SCORER' && (
-          <ScorerConsolePage matchId={matchId} userId={userId} />
+          matchId ? <ScorerConsolePage matchId={matchId} userId={userId} /> : <SelectionPrompt message="Choose a real fixture from a tournament before opening the scorer." onHome={() => setView('HOME')} />
         )}
 
         {view === 'SETUP' && (
-          <MatchSetupPage
-            matchId={matchId}
-            userId={userId}
-            onSetupComplete={() => setView('SCORER')}
-          />
+          matchId ? (
+            <MatchSetupPage
+              matchId={matchId}
+              userId={userId}
+              onSetupComplete={() => setView('SCORER')}
+            />
+          ) : <SelectionPrompt message="Choose a real fixture from a tournament before opening match setup." onHome={() => setView('HOME')} />
         )}
 
         {view === 'SPECTATOR' && (
-          <SpectatorMatchPage
-            matchId={matchId}
-            onSelectPlayer={handleSelectPlayer}
-            onSelectTeam={handleSelectTeam}
-          />
+          matchId ? (
+            <SpectatorMatchPage
+              matchId={matchId}
+              onSelectPlayer={handleSelectPlayer}
+              onSelectTeam={handleSelectTeam}
+            />
+          ) : <SelectionPrompt message="Choose a real fixture from a tournament to view its live score." onHome={() => setView('HOME')} />
         )}
 
         {view === 'PLAYER' && (
@@ -427,6 +403,16 @@ function AppContent() {
         isOpen={isChangePasswordOpen}
         onClose={() => setIsChangePasswordOpen(false)}
       />
+    </div>
+  );
+}
+
+function SelectionPrompt({ message, onHome }) {
+  return (
+    <div style={{ maxWidth: '720px', margin: '48px auto', padding: '24px', color: '#f8fafc', textAlign: 'center', background: '#0f172a', border: '1px solid #334155', borderRadius: '12px' }}>
+      <h2 style={{ marginTop: 0 }}>Select a tournament or match</h2>
+      <p style={{ color: '#94a3b8' }}>{message}</p>
+      <button onClick={onHome} style={{ padding: '9px 16px', border: 0, borderRadius: '6px', background: '#0284c7', color: 'white', fontWeight: 700, cursor: 'pointer' }}>Go to Home</button>
     </div>
   );
 }
