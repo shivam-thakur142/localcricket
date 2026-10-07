@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1e3a8a" />
+      <stop offset="100%" stop-color="#0a0f1d" />
+    </linearGradient>
+    <radialGradient id="ballGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ef4444" />
+      <stop offset="70%" stop-color="#b91c1c" />
+      <stop offset="100%" stop-color="#7f1d1d" />
+    </radialGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="192" height="192" rx="40" fill="url(#bg)" />
+  <circle cx="96" cy="96" r="80" fill="none" stroke="#3b82f6" stroke-width="2" stroke-opacity="0.3" />
+  
+  <!-- Crossed Bat -->
+  <g transform="rotate(-35 96 96)">
+    <!-- Blade -->
+    <rect x="88" y="36" width="16" height="74" rx="4" fill="#f59e0b" stroke="#d97706" stroke-width="2" />
+    <path d="M96 36 L96 110" stroke="#b45309" stroke-width="1.5" />
+    <!-- Handle -->
+    <rect x="92" y="110" width="8" height="46" rx="2" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.5" />
+    <!-- Handle Grips -->
+    <line x1="92" y1="118" x2="100" y2="118" stroke="#64748b" stroke-width="1" />
+    <line x1="92" y1="126" x2="100" y2="126" stroke="#64748b" stroke-width="1" />
+    <line x1="92" y1="134" x2="100" y2="134" stroke="#64748b" stroke-width="1" />
+    <line x1="92" y1="142" x2="100" y2="142" stroke="#64748b" stroke-width="1" />
+  </g>
+
+  <!-- Cricket Ball -->
+  <circle cx="120" cy="80" r="28" fill="url(#ballGlow)" stroke="#f87171" stroke-width="1.5" />
+  <!-- Ball Seam -->
+  <path d="M98 80 Q120 70 142 80" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-dasharray="3,2" />
+  <path d="M100 83 Q120 73 140 83" fill="none" stroke="#fecaca" stroke-width="1" stroke-dasharray="2,2" />
+
+  <!-- App Symbol Accents -->
+  <circle cx="56" cy="136" r="6" fill="#10b981" />
+  <text x="96" y="172" font-family="system-ui, -apple-system, sans-serif" font-size="16" font-weight="800" fill="#ffffff" text-anchor="middle" letter-spacing="1">LOCAL CRICKET</text>
+</svg>

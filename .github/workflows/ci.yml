@@ -1,0 +1,124 @@
+name: LocalCricket CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  secret-scan:
+    name: Repository-Wide Secret Scan (Gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks Secret Scanner (Repository-Wide)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  test-and-build:
+    name: Test & Build (Node ${{ matrix.node-version }})
+    needs: secret-scan
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20.x, 22.x]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Master Backend Test Suite (M1–M14)
+        run: npm run test:server
+        env:
+          NODE_ENV: test
+          RATE_LIMIT_DISABLED: "true"
+
+      - name: Run Master Frontend Test Suite (M2–M13)
+        run: npm run test:client
+
+      - name: Compile Vite Production Build
+        run: npm run build
+
+  disaster-recovery-smoke-test:
+    name: Disaster Recovery & App Connectivity Smoke Test
+    needs: test-and-build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Provision Ephemeral CI Databases & Run DR Smoke Test
+        run: |
+          # Generate ephemeral credentials and register mask in CI logs
+          CI_DB_PW=$(openssl rand -hex 16)
+          echo "::add-mask::$CI_DB_PW"
+
+          # Start ephemeral primary PostgreSQL container
+          docker run -d --name pg-primary \
+            -e POSTGRES_DB=localcricket_primary \
+            -e POSTGRES_USER=ci_operator \
+            -e POSTGRES_PASSWORD="$CI_DB_PW" \
+            -p 5432:5432 \
+            postgres:16-alpine
+
+          # Start ephemeral restore PostgreSQL container
+          docker run -d --name pg-restore \
+            -e POSTGRES_DB=localcricket_restored \
+            -e POSTGRES_USER=ci_operator \
+            -e POSTGRES_PASSWORD="$CI_DB_PW" \
+            -p 5433:5432 \
+            postgres:16-alpine
+
+          # Wait for database instances to accept connections
+          docker exec pg-primary sh -c 'until pg_isready -U ci_operator -d localcricket_primary; do sleep 1; done'
+          docker exec pg-restore sh -c 'until pg_isready -U ci_operator -d localcricket_restored; do sleep 1; done'
+
+          # Run automated Disaster Recovery & Live App Connectivity Smoke Test
+          PRIMARY_DB_URL="postgresql://ci_operator:${CI_DB_PW}@localhost:5432/localcricket_primary" \
+          RESTORE_DB_URL="postgresql://ci_operator:${CI_DB_PW}@localhost:5433/localcricket_restored" \
+          bash scripts/test-dr-recovery.sh
+
+  docker-build:
+    name: Docker Build & Security Verification
+    needs: test-and-build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Production Docker Image
+        run: docker build -t localcricket:ci .
+
+      - name: Verify Container Runs as Non-Root (node)
+        run: |
+          USER_ID=$(docker run --rm localcricket:ci id -u)
+          if [ "$USER_ID" -eq 0 ]; then
+            echo "ERROR: Container runs as root (UID 0)"
+            exit 1
+          fi
+          echo "Verified: Container runs as unprivileged user (UID $USER_ID)"

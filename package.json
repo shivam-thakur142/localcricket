@@ -1,0 +1,25 @@
+{
+  "name": "localcricket",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "test": "npm --prefix server test && npm --prefix client test",
+    "test:server": "npm --prefix server test",
+    "test:client": "npm --prefix client test",
+    "build": "npm --prefix client run build",
+    "start": "npm --prefix server start",
+    "migrate": "npm --prefix server run migrate",
+    "provision-admin": "npm --prefix server run provision-admin",
+    "deploy:prod": "bash scripts/deploy.sh",
+    "rollback": "bash scripts/rollback.sh",
+    "verify:smoke": "node scripts/verify-production-smoke.js",
+    "verify:lifecycle": "node scripts/verify-e2e-lifecycle.js",
+    "verify:migration": "node scripts/verify-migration-compatibility.js",
+    "test:dr": "node scripts/test-dr-smoke.js"
+  }
+}

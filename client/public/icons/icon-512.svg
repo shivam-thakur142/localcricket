@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg512" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1e3a8a" />
+      <stop offset="100%" stop-color="#0a0f1d" />
+    </linearGradient>
+    <radialGradient id="ballGlow512" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ef4444" />
+      <stop offset="70%" stop-color="#b91c1c" />
+      <stop offset="100%" stop-color="#7f1d1d" />
+    </radialGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="512" height="512" rx="100" fill="url(#bg512)" />
+  <circle cx="256" cy="256" r="220" fill="none" stroke="#3b82f6" stroke-width="4" stroke-opacity="0.3" />
+  
+  <!-- Crossed Bat -->
+  <g transform="rotate(-35 256 256)">
+    <!-- Blade -->
+    <rect x="236" y="90" width="40" height="200" rx="10" fill="#f59e0b" stroke="#d97706" stroke-width="4" />
+    <path d="M256 90 L256 290" stroke="#b45309" stroke-width="3" />
+    <!-- Handle -->
+    <rect x="246" y="290" width="20" height="120" rx="6" fill="#e2e8f0" stroke="#94a3b8" stroke-width="3" />
+    <!-- Handle Grips -->
+    <line x1="246" y1="310" x2="266" y2="310" stroke="#64748b" stroke-width="2.5" />
+    <line x1="246" y1="330" x2="266" y2="330" stroke="#64748b" stroke-width="2.5" />
+    <line x1="246" y1="350" x2="266" y2="350" stroke="#64748b" stroke-width="2.5" />
+    <line x1="246" y1="370" x2="266" y2="370" stroke="#64748b" stroke-width="2.5" />
+    <line x1="246" y1="390" x2="266" y2="390" stroke="#64748b" stroke-width="2.5" />
+  </g>
+
+  <!-- Cricket Ball -->
+  <circle cx="320" cy="210" r="76" fill="url(#ballGlow512)" stroke="#f87171" stroke-width="3" />
+  <!-- Ball Seam -->
+  <path d="M260 210 Q320 185 380 210" fill="none" stroke="#ffffff" stroke-width="6" stroke-dasharray="8,5" />
+  <path d="M265 218 Q320 193 375 218" fill="none" stroke="#fecaca" stroke-width="2.5" stroke-dasharray="5,4" />
+
+  <!-- App Symbol Accents -->
+  <circle cx="150" cy="370" r="16" fill="#10b981" />
+  <text x="256" y="460" font-family="system-ui, -apple-system, sans-serif" font-size="38" font-weight="800" fill="#ffffff" text-anchor="middle" letter-spacing="2">LOCAL CRICKET</text>
+</svg>

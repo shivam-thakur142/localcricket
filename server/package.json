@@ -1,0 +1,29 @@
+{
+  "name": "localcricket-server",
+  "version": "1.0.0",
+  "description": "Backend domain service and scoring engine for LocalCricket",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "migrate": "node src/migrate.js",
+    "provision-admin": "node src/provisionAdmin.js",
+    "seed": "node src/seed.js",
+    "test": "node tests/run-all-tests.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "compression": "^1.8.2",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^8.7.1",
+    "helmet": "^8.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.23.1"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.2.14"
+  }
+}

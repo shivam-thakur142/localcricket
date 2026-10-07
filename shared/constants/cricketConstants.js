@@ -1,0 +1,146 @@
+// ====================================================================
+// SHARED DOMAIN CONSTANTS FOR LOCALCRICKET
+// ====================================================================
+
+export const GLOBAL_ROLES = Object.freeze({
+  SUPER_ADMIN: 'SUPER_ADMIN',
+  USER: 'USER',
+});
+
+export const TOURNAMENT_ROLES = Object.freeze({
+  ORGANIZER: 'ORGANIZER',
+  SCORER: 'SCORER',
+  VIEWER: 'VIEWER',
+  UMPIRE: 'UMPIRE',
+  REFEREE: 'REFEREE',
+});
+
+export const MATCH_OFFICIAL_ROLES = Object.freeze({
+  UMPIRE_1: 'UMPIRE_1',
+  UMPIRE_2: 'UMPIRE_2',
+  TV_UMPIRE: 'TV_UMPIRE',
+  MATCH_REFEREE: 'MATCH_REFEREE',
+});
+
+export const SQUAD_STATUS = Object.freeze({
+  DRAFT: 'DRAFT',
+  SUBMITTED: 'SUBMITTED',
+  VERIFIED: 'VERIFIED',
+  LOCKED: 'LOCKED',
+});
+
+export const CRICKET_FORMATS = Object.freeze({
+  T10: 'T10',
+  T15: 'T15',
+  T20: 'T20',
+  ODI: 'ODI',
+  CUSTOM: 'CUSTOM',
+});
+
+export const BALL_TYPES = Object.freeze({
+  TENNIS: 'TENNIS',
+  LEATHER: 'LEATHER',
+  OTHER: 'OTHER',
+});
+
+export const TOURNAMENT_STATUS = Object.freeze({
+  DRAFT: 'DRAFT',
+  UPCOMING: 'UPCOMING',
+  ONGOING: 'ONGOING',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED',
+});
+
+export const BATTING_STYLES = Object.freeze({
+  RIGHT_HAND_BAT: 'RIGHT_HAND_BAT',
+  LEFT_HAND_BAT: 'LEFT_HAND_BAT',
+});
+
+export const BOWLING_STYLES = Object.freeze({
+  RIGHT_ARM_FAST: 'RIGHT_ARM_FAST',
+  RIGHT_ARM_MEDIUM: 'RIGHT_ARM_MEDIUM',
+  RIGHT_ARM_SPIN_OFF: 'RIGHT_ARM_SPIN_OFF',
+  RIGHT_ARM_SPIN_LEG: 'RIGHT_ARM_SPIN_LEG',
+  LEFT_ARM_FAST: 'LEFT_ARM_FAST',
+  LEFT_ARM_MEDIUM: 'LEFT_ARM_MEDIUM',
+  LEFT_ARM_SPIN_ORTHODOX: 'LEFT_ARM_SPIN_ORTHODOX',
+  LEFT_ARM_SPIN_CHINAMAN: 'LEFT_ARM_SPIN_CHINAMAN',
+  NONE: 'NONE',
+});
+
+export const PLAYER_ROLES = Object.freeze({
+  BATTER: 'BATTER',
+  BOWLER: 'BOWLER',
+  ALL_ROUNDER: 'ALL_ROUNDER',
+  WICKET_KEEPER: 'WICKET_KEEPER',
+});
+
+export const MATCH_STATUS = Object.freeze({
+  SCHEDULED: 'SCHEDULED',
+  TOSS_DONE: 'TOSS_DONE',
+  IN_PROGRESS: 'IN_PROGRESS',
+  INNINGS_BREAK: 'INNINGS_BREAK',
+  COMPLETED: 'COMPLETED',
+  ABANDONED: 'ABANDONED',
+  NO_RESULT: 'NO_RESULT',
+});
+
+export const TOSS_DECISIONS = Object.freeze({
+  BAT: 'BAT',
+  BOWL: 'BOWL',
+});
+
+export const MATCH_RESULTS = Object.freeze({
+  NORMAL: 'NORMAL',
+  SUPER_OVER: 'SUPER_OVER',
+  TIED: 'TIED',
+  NO_RESULT: 'NO_RESULT',
+  ABANDONED: 'ABANDONED',
+  AWARDED: 'AWARDED',
+});
+
+export const INNINGS_STATUS = Object.freeze({
+  NOT_STARTED: 'NOT_STARTED',
+  IN_PROGRESS: 'IN_PROGRESS',
+  COMPLETED: 'COMPLETED',
+});
+
+export const EXTRAS_TYPES = Object.freeze({
+  NONE: 'NONE',
+  WIDE: 'WIDE',
+  NO_BALL: 'NO_BALL',
+  BYE: 'BYE',
+  LEG_BYE: 'LEG_BYE',
+  PENALTY: 'PENALTY',
+});
+
+export const WICKET_TYPES = Object.freeze({
+  NONE: 'NONE',
+  BOWLED: 'BOWLED',
+  CAUGHT: 'CAUGHT',
+  LBW: 'LBW',
+  RUN_OUT: 'RUN_OUT',
+  STUMPED: 'STUMPED',
+  HIT_WICKET: 'HIT_WICKET',
+  RETIRED_HURT: 'RETIRED_HURT',
+  OBSTRUCTING_FIELD: 'OBSTRUCTING_FIELD',
+  TIMED_OUT: 'TIMED_OUT',
+  HIT_BALL_TWICE: 'HIT_BALL_TWICE',
+});
+
+export const PLAYOFF_FORMATS = Object.freeze({
+  NONE: 'NONE',
+  PAGE_PLAYOFF: 'PAGE_PLAYOFF',
+  SEMI_FINALS: 'SEMI_FINALS',
+});
+
+export const MATCH_STAGES = Object.freeze({
+  LEAGUE: 'LEAGUE',
+  QUALIFIER_1: 'QUALIFIER_1',
+  ELIMINATOR: 'ELIMINATOR',
+  QUALIFIER_2: 'QUALIFIER_2',
+  SEMI_FINAL_1: 'SEMI_FINAL_1',
+  SEMI_FINAL_2: 'SEMI_FINAL_2',
+  FINAL: 'FINAL',
+});
+
